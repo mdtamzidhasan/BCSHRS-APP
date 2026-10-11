@@ -1,0 +1,21 @@
+import { Stack } from 'expo-router';
+
+import { QueryBoundary } from '@/components/ui/query-boundary';
+import { Screen } from '@/components/ui/screen';
+
+import type { ReportKind } from '../api';
+import { REPORT_TITLES } from '../reports';
+import { useMemberReport } from '../use-member';
+import { ReportData } from './report-sections';
+
+/** A report viewer: fetches the report for the filters in the route query and renders the returned sections. */
+export function MemberReportScreen({ kind }: { kind: ReportKind }) {
+  const { query } = useMemberReport(kind);
+
+  return (
+    <Screen refreshing={query.isRefetching} onRefresh={() => void query.refetch()}>
+      <Stack.Screen options={{ title: REPORT_TITLES[kind] }} />
+      <QueryBoundary query={query}>{(data) => <ReportData data={data} />}</QueryBoundary>
+    </Screen>
+  );
+}
