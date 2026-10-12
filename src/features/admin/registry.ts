@@ -24,8 +24,7 @@ export const ADMIN_FEATURES: Record<string, AdminFeature> = {
   'user-role-assignment': { key: 'user-role-assignment', title: 'User Roles', icon: 'person-add-outline', href: '/user-role-assignment' },
   'web-events': { key: 'web-events', title: 'Web Report', icon: 'calendar-outline', href: '/web-events' },
   'web-menus': { key: 'web-menus', title: 'Web Menu', icon: 'list-outline', href: '/web-menus' },
-  permissions: { key: 'permissions', title: 'Role Web Event', icon: 'key-outline', href: '/permissions' },
-  'menu-permissions': { key: 'menu-permissions', title: 'Role Web Menu', icon: 'git-network-outline', href: '/menu-permissions' },
+  'role-web-menus': { key: 'role-web-menus', title: 'Role Web Menu', icon: 'git-network-outline', href: '/role-web-menus' },
   'role-web-reports': { key: 'role-web-reports', title: 'Role Web Report', icon: 'document-lock-outline', href: '/role-web-reports' },
   'super-admin': { key: 'super-admin', title: 'Create Super Admin', icon: 'shield-half-outline', href: '/super-admin' },
   // Access Report
@@ -69,7 +68,6 @@ export const ADMIN_FEATURES: Record<string, AdminFeature> = {
  * the group's hub (key = the group's MenuName on the server, lower-cased).
  */
 export const EXTRA_FEATURES_BY_GROUP: Record<string, string[]> = {
-  'role mgmt': ['role-web-reports'],
   'employee mgmt': ['lookup-master'],
   'salary sheet': ['salary-approval'],
 };

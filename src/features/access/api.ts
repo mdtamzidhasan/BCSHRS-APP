@@ -198,26 +198,6 @@ export const webMenuApi = {
 };
 
 // ------------------------------------------------------------------ permission matrices
-export interface RoleWebEventData {
-  role: Role;
-  webEvents: WebEvent[];
-  currentPermissions: Keyed<{ CanRead?: boolean; CanCreate?: boolean; CanUpdate?: boolean; CanDelete?: boolean }>;
-}
-
-export interface RoleWebMenuData {
-  role: Role;
-  webMenus: { MenuId: number; MenuName: string; ParentId: number; parent?: { MenuName: string } | null }[];
-  currentPermissions: Keyed<{ Active?: boolean; CanCreate?: boolean; CanUpdate?: boolean; CanDelete?: boolean }>;
-}
-
-export const matrixApi = {
-  roles: async (base: 'permissions' | 'menu-permissions') => (await api.get<{ roles: Role[] }>(`/admin/${base}`)).data.roles,
-  events: async (roleId: string) => (await api.get<RoleWebEventData>(`/admin/permissions/${roleId}`)).data,
-  saveEvents: (roleId: string, permissions: Record<string, Flags>): Promise<Answer<null>> => api.post<null>(`/admin/permissions/${roleId}`, { permissions }),
-  menus: async (roleId: string) => (await api.get<RoleWebMenuData>(`/admin/menu-permissions/${roleId}`)).data,
-  saveMenus: (roleId: string, permissions: Record<string, Flags>): Promise<Answer<null>> => api.post<null>(`/admin/menu-permissions/${roleId}`, { permissions }),
-};
-
 export interface RoleWebReport {
   WebReportId: number;
   ReportName: string;
@@ -232,6 +212,22 @@ export const roleReportApi = {
     (await api.get<{ roles: { RoleId: string; RoleName: string }[]; roleId: string | null; reports: RoleWebReport[] }>('/admin/role-web-reports', { role: roleId || undefined })).data,
   save: (roleId: string, reports: Record<string, Flags>): Promise<Answer<null>> => api.post<null>('/admin/role-web-reports', { role: roleId, reports }),
   remove: (roleId: string): Promise<Answer<null>> => api.delete<null>('/admin/role-web-reports', { role: roleId }),
+};
+
+export interface RoleWebMenu {
+  WebMenuId: number;
+  MenuName: string;
+  MenuLocation: string;
+  MenuSelect: boolean;
+  CreateSelect: boolean;
+  UpdateSelect: boolean;
+  DeleteSelect: boolean;
+}
+
+export const roleMenuApi = {
+  load: async (roleId: string) =>
+    (await api.get<{ roles: { RoleId: string; RoleName: string }[]; roleId: string | null; menus: RoleWebMenu[] }>('/admin/role-web-menus', { role: roleId || undefined })).data,
+  save: (roleId: string, menus: Record<string, Flags>): Promise<Answer<null>> => api.post<null>('/admin/role-web-menus', { role: roleId, menus }),
 };
 
 // ------------------------------------------------------------------ super admin

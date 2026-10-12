@@ -36,7 +36,7 @@ export function formatValue(value: ReportNode): string {
 
 const isScalar = (value: ReportNode): value is string | number | boolean | null => value === null || typeof value !== 'object';
 const isRecord = (value: ReportNode): value is Record_ => typeof value === 'object' && value !== null && !Array.isArray(value);
-const HIDDEN_KEYS = new Set(['logo_path', 'logo']);
+const HIDDEN_KEYS = new Set(['logo_path', 'logo_url', 'logo']);
 const isTotal = (key: string) => /total|net|gross|payable/i.test(key);
 
 /** A titled card holding the rows of one report section. */
