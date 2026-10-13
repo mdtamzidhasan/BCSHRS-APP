@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Linking } from 'react-native';
 
+import { endSession } from '@/api/client';
 import { toast } from '@/components/ui/toast';
 import { useFormErrors } from '@/hooks/use-form-errors';
 import { API_BASE_URL } from '@/lib/config';
@@ -80,14 +81,16 @@ export function openPdf(url: string) {
   void Linking.openURL(target);
 }
 
+/** On success the API ends every token of the account (password change), so the message is shown and the session is ended here. */
 export function useChangePassword() {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const [values, setValues] = useState({ old_password: '', new_password: '', new_password_confirmation: '' });
   const mutation = useMutation({
     mutationFn: changePassword,
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       toast.success(response.message ?? 'Password changed successfully.');
-      router.back();
+      queryClient.clear();
+      await endSession('Your password was changed. Please log in again.');
     },
   });
 
