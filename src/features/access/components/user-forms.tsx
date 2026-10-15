@@ -91,6 +91,7 @@ export function EditUserForm({ user }: { user: AdminUser }) {
       </Card>
       <FormError error={errors.general ? update.error : null} />
       <Button title="Save" icon="save-outline" loading={update.isPending} onPress={() => update.mutate(form)} />
+      <FormError error={unlock.error} />
       {locked ? <Button title="Unlock User" variant="secondary" icon="lock-open-outline" loading={unlock.isPending} onPress={() => unlock.mutate()} /> : null}
     </>
   );

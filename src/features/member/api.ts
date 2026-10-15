@@ -45,7 +45,7 @@ export const getDashboard = async () => (await api.get<MemberDashboard>('/member
 
 export const getPdfs = async () => (await api.get<{ pdfs: MemberPdf[] | null }>('/member/pdfs')).data.pdfs ?? [];
 
-const REPORT_URLS: Record<ReportKind, string> = {
+export const REPORT_PATHS: Record<ReportKind, string> = {
   payslip: '/member/reports/payslip',
   'employee-details': '/member/reports/employee-details',
   'salary-certificate': '/member/reports/salary-certificate',
@@ -58,7 +58,7 @@ const REPORT_URLS: Record<ReportKind, string> = {
 
 /** Some reports answer HTTP 200 with success:false (not available yet, no access) — raised as an error here. */
 export async function getReport(kind: ReportKind, params: ReportParams): Promise<ReportNode> {
-  const body = await api.get<ReportNode>(REPORT_URLS[kind], params);
+  const body = await api.get<ReportNode>(REPORT_PATHS[kind], params);
 
   if (!body.success || body.data === null) {
     throw new ApiError(body.message ?? 'No data found.', 422, 'REPORT_UNAVAILABLE');
