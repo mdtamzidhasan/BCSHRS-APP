@@ -2,7 +2,8 @@ import { api, http } from './client';
 import { secureStorage, type Area, type StoredUser } from '@/lib/secure-storage';
 import { useSession } from '@/store/session';
 
-export type OtpChannel = 'email' | 'mobile';
+/** The names the API uses (OtpService::CHANNEL_EMAIL / CHANNEL_MOBILE) — capitalised, and sent back as they are. */
+export type OtpChannel = 'Email' | 'Mobile';
 
 export interface LoginTokens {
   token: string;

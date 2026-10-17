@@ -56,7 +56,7 @@ export function WizardView({ wizard, identifyLabel, done }: Props) {
               { label: 'Mobile (SMS)', value: 'Mobile' as Channel },
             ]}
           />
-          <Button title="Send code" loading={wizard.pending} onPress={() => wizard.send(channel)} />
+          <Button title={`Send code to ${channel === 'Email' ? 'Email' : 'Mobile (SMS)'}`} loading={wizard.pending} onPress={() => wizard.send(channel)} />
           <Button title="Start over" variant="ghost" size="sm" onPress={wizard.backToStart} />
         </>
       ) : null}
@@ -66,7 +66,7 @@ export function WizardView({ wizard, identifyLabel, done }: Props) {
           <TextField label="Verification code" value={code} onChangeText={setCode} error={errors.field('verification_code')} keyboardType="number-pad" autoComplete="one-time-code" />
           <Button title="Verify" loading={wizard.pending} onPress={() => wizard.verify(code)} />
           <View style={styles.row}>
-            <Button title="Resend code" variant="ghost" size="sm" block={false} onPress={() => wizard.send(channel)} />
+            <Button title={`Resend code to ${channel === 'Email' ? 'Email' : 'Mobile (SMS)'}`} variant="ghost" size="sm" block={false} onPress={() => wizard.send(channel)} />
             <Button title="Start over" variant="ghost" size="sm" block={false} onPress={wizard.backToStart} />
           </View>
         </>

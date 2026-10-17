@@ -65,8 +65,18 @@ function period(banner: ReportBanner): string | null {
   return `Period: ${monthLabel(banner.dateFrom)}  To: ${monthLabel(banner.dateTo)}`;
 }
 
+const ENTITIES: Record<string, string> = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#039;': "'", '&#39;': "'" };
+
+/** The server builds the header as HTML ("Salary Sheet<br>Name,Designation"): break it into plain lines and decode the escaped text. */
+function headerLines(header: string | undefined): string[] {
+  return (header ?? '')
+    .split(/<br\s*\/?>/i)
+    .map((line) => line.replace(/&(?:amp|lt|gt|quot|#0?39);/g, (entity) => ENTITIES[entity] ?? entity).trim())
+    .filter((line) => line !== '');
+}
+
 function bannerLines(banner: ReportBanner): string[] {
-  return [banner.companyName, banner.reportHeader, period(banner)].filter((line): line is string => !!line);
+  return [banner.companyName, ...headerLines(banner.reportHeader), period(banner)].filter((line): line is string => !!line);
 }
 
 interface Breakdown {
@@ -217,7 +227,7 @@ function locationCostCenterModel(data: LocationCostCenterResponse): ReportModel 
   };
 }
 
-const SECTION_50_COLUMNS: [number, string][] = [
+export const SECTION_50_COLUMNS: [number, string][] = [
   [5, 'Basic Salary'],
   [6, 'Bonus, Arrear, Advance, Leave, Overtime'],
   [7, 'House Rent Allowance'],

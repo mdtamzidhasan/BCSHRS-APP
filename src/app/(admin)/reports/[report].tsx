@@ -4,7 +4,7 @@ import { AppText } from '@/components/ui/app-text';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ListRow } from '@/components/ui/list-row';
-import { PdfButton } from '@/components/ui/pdf-button';
+import { ReportPdf } from '@/components/ui/report-pdf';
 import { Screen } from '@/components/ui/screen';
 import { EmptyState, ErrorState, LoadingView } from '@/components/ui/state-views';
 import { REPORT_ENDPOINTS } from '@/features/admin-home/api';
@@ -36,8 +36,7 @@ export default function ReportViewer() {
         <AppText variant="subheading">Employee {screen.params.employee_code}</AppText>
         {singleQuery.isPending ? <LoadingView /> : null}
         {singleQuery.isError && singleQuery.data === undefined ? <ErrorState error={singleQuery.error} onRetry={() => singleQuery.refetch()} /> : null}
-        {singleQuery.data !== undefined ? <ReportData data={singleQuery.data} /> : null}
-        {singleQuery.data !== undefined ? <PdfButton path={REPORT_ENDPOINTS[screen.report]} params={screen.params} fileName={screen.report} /> : null}
+        {singleQuery.data !== undefined ? <ReportPdf path={REPORT_ENDPOINTS[screen.report]} params={screen.params} fileName={screen.report} /> : null}
       </Screen>
     );
   }

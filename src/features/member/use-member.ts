@@ -120,7 +120,7 @@ export function useAddMobile() {
   return { current, mobile, setMobile, submit: () => mutation.mutate({ mobile: mobile.trim() }), mutation, errors: useFormErrors(mutation.error) };
 }
 
-export function useContactHr() {
+export function useContactUs() {
   const [message, setMessage] = useState('');
   const mutation = useMutation({
     mutationFn: sendContact,
