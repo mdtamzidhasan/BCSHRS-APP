@@ -31,15 +31,27 @@ export function UploadExcelView({ upload }: { upload: ReturnType<typeof useUploa
         <SectionHeader title="2. Upload" />
         <View style={styles.gap}>
           <FilePickerField label="Excel file (.xlsx)" file={upload.file} onPick={upload.pick} accept={EXCEL_TYPES} />
-          <FormError error={upload.previewMutation.error} />
-          <Button title="Preview" icon="eye-outline" disabled={!upload.file} loading={upload.previewMutation.isPending} onPress={upload.runPreview} />
+          <FormError error={upload.uploadMutation.error} />
+          <Button title="Upload" icon="cloud-upload-outline" disabled={!upload.file} loading={upload.uploadMutation.isPending} onPress={upload.runUpload} />
         </View>
       </Card>
+
+      {upload.workbook ? (
+        <Card outlined>
+          <SectionHeader title="Worksheet" />
+          <View style={styles.gap}>
+            <AppText>{upload.workbook.fileName}</AppText>
+            <SelectField label="WorkSheet Name" value={upload.sheet} options={upload.workbook.sheets.map((name, position) => ({ label: name, value: String(position) }))} onChange={upload.setSheet} />
+            <FormError error={upload.previewMutation.error} />
+            <Button title="Read & Preview" icon="eye-outline" loading={upload.previewMutation.isPending} onPress={upload.runPreview} />
+          </View>
+        </Card>
+      ) : null}
 
       {preview ? (
         <>
           <Card outlined>
-            <SectionHeader title="3. Preview" />
+            <SectionHeader title={preview.sheetName ? `3. Preview — ${preview.sheetName}` : '3. Preview'} />
             <AppText style={styles.gap}>
               {preview.rows.length} row(s) read, {preview.invalidCount} invalid cell(s).
             </AppText>

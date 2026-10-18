@@ -10,12 +10,12 @@ import { palette, spacing } from '@/theme/tokens';
 
 export default function EmployeeBasicInfoScreen() {
   const router = useRouter();
-  const { query, employees, search, setSearch, total, loadMore } = useEmployeeList();
+  const { query, employees, search, setSearch, loadMore } = useEmployeeList();
 
   const header = (
     <View style={styles.header}>
       <Button title="Add Employee" icon="person-add-outline" onPress={() => router.push('/employee-basic-info/new')} />
-      <TextField label="Search" placeholder={total ? `Search ${total} employees` : 'Code, name, designation'} value={search} onChangeText={setSearch} autoCapitalize="none" returnKeyType="search" />
+      <TextField label="Search" placeholder="Employee code or name" value={search} onChangeText={setSearch} autoCapitalize="none" returnKeyType="search" />
     </View>
   );
 
@@ -31,7 +31,7 @@ export default function EmployeeBasicInfoScreen() {
         data={employees}
         keyExtractor={(employee) => String(employee.code)}
         ListHeaderComponent={header}
-        ListEmptyComponent={<EmptyState title="No employees" message={search ? 'No loaded employee matches your search.' : undefined} />}
+        ListEmptyComponent={<EmptyState title="No employees" message={search.trim() ? 'No employee matches your search.' : undefined} />}
         ListFooterComponent={query.isFetchingNextPage ? <ActivityIndicator color={palette.primary} style={styles.footer} /> : null}
         onEndReached={loadMore}
         onEndReachedThreshold={0.4}

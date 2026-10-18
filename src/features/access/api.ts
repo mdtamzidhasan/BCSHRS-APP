@@ -17,12 +17,24 @@ export interface Membership {
   IsLockedOut?: boolean;
 }
 
+/** Dates exactly as the web page prints them (the server formats the stored values; never convert them on the phone). */
+export interface UserDates {
+  CreationDate: string;
+  LastLoginDate: string;
+  LastActivityDate: string;
+  /** Edit User only. */
+  LastLockoutDate?: string;
+  LastPasswordChangedDate?: string;
+}
+
 export interface AdminUser {
   UserId: string;
   UserName: string;
+  /** The legacy calculation (activity within 15 minutes), not the database flag. */
   IsOnline?: boolean;
   membership?: Membership | null;
   detail?: { EmployeeId?: string | null } | null;
+  legacy?: UserDates;
 }
 
 export interface Company {
@@ -106,10 +118,18 @@ export interface UsersPage {
 }
 
 export interface UserInput {
+  username: string;
+  /** Only for a user that has an employee record (UserDetails); left out otherwise. */
+  employee_id?: string;
   email: string;
   comment: string;
   is_approved: boolean;
-  is_online: boolean;
+}
+
+/** Edit User: the user, and the roles the user is in (shown only; roles are not edited here). */
+export interface EditableUser {
+  user: AdminUser;
+  roles: Role[];
 }
 
 export interface CreateUserInput {
@@ -138,7 +158,7 @@ export const usersApi = {
     return (await api.get<UsersPage>('/admin/users', params)).data;
   },
   formData: async () => (await api.get<{ companies: Company[]; roles: Role[] }>('/admin/users/create')).data,
-  one: async (id: string) => (await api.get<{ user: AdminUser }>(`/admin/users/${id}`)).data.user,
+  one: async (id: string) => (await api.get<EditableUser>(`/admin/users/${id}`)).data,
   create: (input: CreateUserInput): Promise<Answer<null>> => api.post<null>('/admin/users', input),
   update: (id: string, input: UserInput): Promise<Answer<null>> => api.put<null>(`/admin/users/${id}`, input),
   unlock: (id: string): Promise<Answer<{ user: AdminUser }>> => api.post<{ user: AdminUser }>(`/admin/users/${id}/unlock`),
@@ -251,7 +271,8 @@ export const REPORT_ACCESS_FLAGS: { id: string; label: string }[] = [
   { id: 'chkInvestmentLetter', label: 'Investment Letter' },
   { id: 'chkTaxMonthly', label: 'Tax Computation Monthly' },
   { id: 'chkTaxYearly', label: 'Tax Computation Yearly' },
-  { id: 'chkPFReport', label: 'Investment report excluding pf from investment' },
+  // LEGACY: commented out in PayrollReportAccess.aspx, so not shown (the server always saves pf_report as 0).
+  // { id: 'chkPFReport', label: 'Investment report excluding pf from investment' },
   { id: 'chkPFCertificate', label: 'PF Certificate' },
   { id: 'chkSalaryCertificate', label: 'Salary Certificate' },
   { id: 'chkCostToTheCompanyReport', label: 'Cost to the company' },

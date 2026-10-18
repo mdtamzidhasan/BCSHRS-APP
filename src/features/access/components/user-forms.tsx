@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/app-text';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { SectionHeader, SwitchRow } from '@/components/ui/misc';
+import { Badge, KeyValue, SectionHeader, SwitchRow } from '@/components/ui/misc';
 import { SelectField } from '@/components/ui/select-field';
 import { FormError } from '@/components/ui/state-views';
 import { TextField } from '@/components/ui/text-field';
 import { useFormErrors } from '@/hooks/use-form-errors';
+import { spacing } from '@/theme/tokens';
 
 import type { AdminUser, Company, CreateUserInput, Role, UserInput } from '../api';
 import { useCreateUser, useUnlockUser, useUpdateUser } from '../use-users';
@@ -63,31 +65,56 @@ export function CreateUserForm({ companies, roles }: { companies: Company[]; rol
   );
 }
 
-/** Edit User: only the working legacy fields (Email, Comment, Approved, Online) plus Unlock. */
-export function EditUserForm({ user }: { user: AdminUser }) {
+/** Edit User as the web page: the user's roles (shown only), User Name and User ID, Email, Comment, Active User, the legacy dates and Unlock. */
+export function EditUserForm({ user, roles }: { user: AdminUser; roles: Role[] }) {
+  const hasEmployee = user.detail != null;
   const [form, setForm] = useState<UserInput>({
+    username: user.UserName,
+    ...(hasEmployee ? { employee_id: user.detail?.EmployeeId ?? '' } : {}),
     email: user.membership?.Email ?? '',
     comment: user.membership?.Comment ?? '',
     is_approved: !!user.membership?.IsApproved,
-    is_online: !!user.IsOnline,
   });
   const update = useUpdateUser(user.UserId);
   const unlock = useUnlockUser(user.UserId);
   const errors = useFormErrors(update.error);
   const locked = unlock.data ? !!unlock.data.data.user.membership?.IsLockedOut : !!user.membership?.IsLockedOut;
   const set = <K extends keyof UserInput>(name: K, value: UserInput[K]) => setForm((current) => ({ ...current, [name]: value }));
+  const dates = user.legacy;
 
   return (
     <>
       <Card>
         <AppText variant="heading">{user.UserName}</AppText>
-        <UserStatusBadges approved={form.is_approved} online={form.is_online} locked={locked} />
+        <UserStatusBadges approved={form.is_approved} online={user.IsOnline} locked={locked} />
       </Card>
       <Card>
+        <SectionHeader title="Roles" />
+        {roles.length > 0 ? (
+          <View style={styles.badges}>
+            {roles.map((role) => (
+              <Badge key={role.RoleId} label={role.RoleName} />
+            ))}
+          </View>
+        ) : (
+          <AppText tone="muted">No roles.</AppText>
+        )}
+      </Card>
+      <Card>
+        <TextField label="User Name" value={form.username} onChangeText={(value) => set('username', value)} autoCapitalize="none" autoCorrect={false} error={errors.field('username')} />
+        {hasEmployee ? <TextField label="User ID" value={form.employee_id ?? ''} onChangeText={(value) => set('employee_id', value)} autoCapitalize="none" autoCorrect={false} error={errors.field('employee_id')} /> : null}
         <TextField label="Email" value={form.email} onChangeText={(value) => set('email', value)} keyboardType="email-address" autoCapitalize="none" error={errors.field('email')} />
         <TextField label="Comment" value={form.comment} onChangeText={(value) => set('comment', value)} multiline error={errors.field('comment')} />
-        <SwitchRow label="Approved (active)" value={form.is_approved} onChange={(value) => set('is_approved', value)} />
-        <SwitchRow label="Online" value={form.is_online} onChange={(value) => set('is_online', value)} />
+        <SwitchRow label="Active User" value={form.is_approved} onChange={(value) => set('is_approved', value)} />
+      </Card>
+      <Card>
+        <KeyValue label="Creation Date" value={dates?.CreationDate || '-'} />
+        <KeyValue label="Last Activity Date" value={dates?.LastActivityDate || '-'} />
+        <KeyValue label="Last Login Date" value={dates?.LastLoginDate || '-'} />
+        <KeyValue label="Last Lockout Date" value={dates?.LastLockoutDate || '-'} />
+        <KeyValue label="Last Password Changed Date" value={dates?.LastPasswordChangedDate || '-'} />
+        <KeyValue label="Is Online" value={user.IsOnline ? 'Yes' : 'No'} />
+        <KeyValue label="Is Locked Out" value={locked ? 'Yes' : 'No'} />
       </Card>
       <FormError error={errors.general ? update.error : null} />
       <Button title="Save" icon="save-outline" loading={update.isPending} onPress={() => update.mutate(form)} />
@@ -96,3 +123,7 @@ export function EditUserForm({ user }: { user: AdminUser }) {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
+});

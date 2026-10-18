@@ -25,6 +25,7 @@ export function ListedUserCard({ user }: { user: ListedUser }) {
         { label: 'Email', value: user.Email || '-' },
         { label: 'Created', value: user.CreationDate },
         { label: 'Last login', value: user.LastLoginDate },
+        { label: 'Last activity', value: user.LastActivityDate },
         { label: 'Status', value: <UserStatusBadges approved={user.IsApproved} online={user.IsOnline} locked={user.IsLockedOut} /> },
       ]}
     />

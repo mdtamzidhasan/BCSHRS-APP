@@ -34,7 +34,10 @@ export default function UsersScreen() {
             title={item.UserName}
             fields={[
               { label: 'Email', value: item.membership?.Email || '-' },
-              { label: 'Employee ID', value: item.detail?.EmployeeId || '-' },
+              { label: 'ID', value: item.detail?.EmployeeId || '-' },
+              { label: 'Created', value: item.legacy?.CreationDate || '-' },
+              { label: 'Last login', value: item.legacy?.LastLoginDate || '-' },
+              { label: 'Last activity', value: item.legacy?.LastActivityDate || '-' },
               { label: 'Status', value: <UserStatusBadges approved={item.membership?.IsApproved} online={item.IsOnline} locked={item.membership?.IsLockedOut} /> },
             ]}
             actions={

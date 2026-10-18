@@ -5,11 +5,13 @@ import type { PickedFile } from '@/components/ui/misc';
 import { toast } from '@/components/ui/toast';
 import { downloadAndShare } from '@/lib/files';
 
-import { EMPLOYEE_TEMPLATE, uploadExcelApi, uploadDataApi, type ReadDataBody, type UploadDataForm, type UploadDataPage, type UploadDataRow, type UploadPreview } from './api';
+import { EMPLOYEE_TEMPLATE, uploadExcelApi, uploadDataApi, type ReadDataBody, type UploadDataForm, type UploadDataPage, type UploadDataRow, type UploadedWorkbook, type UploadPreview } from './api';
 
-/** New-employee import: download the template, pick a file, preview, confirm. */
+/** New-employee import: download the template, pick a file, upload it, pick the worksheet, preview, confirm. */
 export function useUploadExcel() {
   const [file, setFile] = useState<PickedFile | null>(null);
+  const [workbook, setWorkbook] = useState<UploadedWorkbook | null>(null);
+  const [sheet, setSheet] = useState('0');
   const [preview, setPreview] = useState<UploadPreview | null>(null);
 
   const template = useMutation({
@@ -17,8 +19,17 @@ export function useUploadExcel() {
     onError: (error) => toast.error(error instanceof Error ? error.message : 'The template could not be downloaded.'),
   });
 
+  const uploadMutation = useMutation({
+    mutationFn: (picked: PickedFile) => uploadExcelApi.sheets(picked),
+    onSuccess: (uploaded) => {
+      setWorkbook(uploaded);
+      setSheet('0');
+      setPreview(null);
+    },
+  });
+
   const previewMutation = useMutation({
-    mutationFn: (picked: PickedFile) => uploadExcelApi.preview(picked),
+    mutationFn: (body: { token: string; sheet: number }) => uploadExcelApi.preview(body.token, body.sheet),
     onSuccess: setPreview,
   });
 
@@ -27,23 +38,31 @@ export function useUploadExcel() {
     onSuccess: (message) => {
       toast.success(message);
       setFile(null);
+      setWorkbook(null);
       setPreview(null);
     },
   });
 
   return {
     file,
+    workbook,
+    sheet,
+    setSheet,
     preview,
     template,
+    uploadMutation,
     previewMutation,
     confirm,
     pick: (picked: PickedFile) => {
       setFile(picked);
+      setWorkbook(null);
       setPreview(null);
+      uploadMutation.reset();
       previewMutation.reset();
       confirm.reset();
     },
-    runPreview: () => file && previewMutation.mutate(file),
+    runUpload: () => file && uploadMutation.mutate(file),
+    runPreview: () => workbook && previewMutation.mutate({ token: workbook.token, sheet: Number(sheet) }),
     runConfirm: () => preview && confirm.mutate(preview.token),
     cancelPreview: () => setPreview(null),
   };

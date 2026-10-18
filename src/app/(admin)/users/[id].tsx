@@ -12,7 +12,7 @@ export default function EditUserScreen() {
   return (
     <Screen refreshing={user.isRefetching} onRefresh={() => user.refetch()}>
       <Stack.Screen options={{ title: 'Edit User' }} />
-      <QueryBoundary query={user}>{(data) => <EditUserForm key={user.dataUpdatedAt} user={data} />}</QueryBoundary>
+      <QueryBoundary query={user}>{(data) => <EditUserForm key={user.dataUpdatedAt} user={data.user} roles={data.roles} />}</QueryBoundary>
     </Screen>
   );
 }

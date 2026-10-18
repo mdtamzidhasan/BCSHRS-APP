@@ -7,8 +7,9 @@ const BASE = '/admin';
 export type EmployeeRecord = Record<string, string | number | boolean | null | undefined>;
 
 export const employeeApi = {
-  async list(page: number): Promise<Paginated<EmployeeRecord>> {
-    const res = await api.get<{ employees: Paginated<EmployeeRecord> }>(`${BASE}/employee-basic-info`, { page });
+  /** `search`: the typed text anywhere in the employee code or name (the server searches the whole company, not only the loaded pages). */
+  async list(page: number, search = ''): Promise<Paginated<EmployeeRecord>> {
+    const res = await api.get<{ employees: Paginated<EmployeeRecord> }>(`${BASE}/employee-basic-info`, { page, search: search || undefined });
     return res.data.employees;
   },
   async get(code: string): Promise<EmployeeRecord> {
@@ -179,11 +180,24 @@ export interface UploadPreview {
   rows: UploadPreviewRow[];
   invalidCount: number;
   columnCount: number;
+  sheetName?: string;
+}
+
+/** The uploaded workbook: its worksheet names (in order) to pick from, and the token that stands for the file. */
+export interface UploadedWorkbook {
+  token: string;
+  fileName: string;
+  sheets: string[];
 }
 
 export const uploadExcelApi = {
-  async preview(file: PickedFile): Promise<UploadPreview> {
-    return (await api.upload<UploadPreview>(`${BASE}/upload-excel/preview`, file, {}, 'file')).data;
+  /** LEGACY UploadFile: keeps the file on the server and answers its worksheets. */
+  async sheets(file: PickedFile): Promise<UploadedWorkbook> {
+    return (await api.upload<UploadedWorkbook>(`${BASE}/upload-excel/sheets`, file, {}, 'file')).data;
+  },
+  /** Reads the chosen worksheet (`sheet` = its position) of the uploaded file and checks it. */
+  async preview(token: string, sheet: number): Promise<UploadPreview> {
+    return (await api.post<UploadPreview>(`${BASE}/upload-excel/preview`, { token, sheet })).data;
   },
   async confirm(token: string): Promise<string> {
     return (await api.post<{ count: number }>(`${BASE}/upload-excel/confirm`, { token })).message ?? 'Imported.';
