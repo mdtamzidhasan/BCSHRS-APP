@@ -31,7 +31,7 @@ export function ComponentGroupsView({ kind }: { kind: ComponentKind }) {
       <TextField label="Group Name" value={state.groupName} onChangeText={state.setGroupName} error={errors.field('group_name')} maxLength={100} />
       <FormError error={errors.general ? state.save.error : null} />
       <Button title={state.editing ? 'Update' : 'Save'} icon="save-outline" loading={state.save.isPending} disabled={!state.groupId.trim() || !state.groupName.trim()} onPress={() => state.save.mutate()} />
-      {state.editing ? <Button title="Cancel" variant="ghost" onPress={state.cancel} /> : null}
+      <Button title="Reset" icon="refresh-outline" variant="secondary" onPress={state.reset} style={styles.reset} />
     </Card>
   );
 
@@ -73,4 +73,5 @@ export function ComponentGroupsView({ kind }: { kind: ComponentKind }) {
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
+  reset: { marginTop: spacing.md },
 });

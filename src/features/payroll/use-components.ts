@@ -64,7 +64,13 @@ export function useComponentGroups(kind: ComponentKind) {
     setGroupName(group.group_name);
   };
 
-  return { query, editing, groupId, setGroupId, groupName, setGroupName, save, remove, edit, cancel: clear, toDelete, setToDelete };
+  /** LEGACY $scope.reset (RESET button): empties the form and leaves edit mode, also dropping a previous save error. */
+  const reset = () => {
+    save.reset();
+    clear();
+  };
+
+  return { query, editing, groupId, setGroupId, groupName, setGroupName, save, remove, edit, reset, toDelete, setToDelete };
 }
 
 // ------------------------------------------------------------------ mapping

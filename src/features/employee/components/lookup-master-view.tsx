@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/app-text';
@@ -5,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { SectionHeader } from '@/components/ui/misc';
+import { SegmentedToggle, type SegmentOption } from '@/components/ui/segmented-toggle';
 import { SelectField } from '@/components/ui/select-field';
 import { FormError } from '@/components/ui/state-views';
 import { TextField } from '@/components/ui/text-field';
@@ -38,24 +40,39 @@ function LookupCard({ title, kind, items, lookup, disabled, note }: { title: str
   );
 }
 
+const SECTIONS: SegmentOption<LookupKind>[] = [
+  { value: 'salary-circles', label: 'Salary Circle' },
+  { value: 'tax-zones', label: 'Tax Zone' },
+  { value: 'banks', label: 'Bank' },
+  { value: 'branches', label: 'Branch' },
+];
+
+/** The four lookup lists as a toggle: tap Salary Circle / Tax Zone / Bank / Branch to see just that one. */
 export function LookupMasterView({ lookup, data }: { lookup: LookupMasterApi; data: NonNullable<LookupMasterApi['query']['data']> }) {
   const { editor } = lookup;
   const hasDescription = editor?.kind === 'banks' || editor?.kind === 'branches';
+  const [section, setSection] = useState<LookupKind>('salary-circles');
 
   return (
     <View style={styles.stack}>
-      <LookupCard title="Salary Circle" kind="salary-circles" items={data.salaryCircles.map((name) => ({ name }))} lookup={lookup} />
-      <LookupCard title="Tax Zone" kind="tax-zones" items={data.taxZones.map((name) => ({ name }))} lookup={lookup} />
-      <LookupCard title="Bank" kind="banks" items={data.banks.map((row) => ({ name: row.BankName, description: row.Description }))} lookup={lookup} />
+      <SegmentedToggle options={SECTIONS} value={section} onChange={setSection} />
 
-      <Card outlined>
-        <SectionHeader title="Branch" />
-        <View style={styles.gap}>
-          <SelectField label="Bank" value={lookup.bank || null} options={data.banks.map((row) => ({ label: row.BankName, value: row.BankName }))} onChange={lookup.setBank} placeholder="Select a bank to manage its branches" />
-        </View>
-      </Card>
-      {lookup.bank ? (
-        <LookupCard title={`Branches of ${lookup.bank}`} kind="branches" items={data.branches.map((row) => ({ name: row.BranchName, description: row.Description }))} lookup={lookup} />
+      {section === 'salary-circles' ? <LookupCard title="Salary Circle" kind="salary-circles" items={data.salaryCircles.map((name) => ({ name }))} lookup={lookup} /> : null}
+      {section === 'tax-zones' ? <LookupCard title="Tax Zone" kind="tax-zones" items={data.taxZones.map((name) => ({ name }))} lookup={lookup} /> : null}
+      {section === 'banks' ? <LookupCard title="Bank" kind="banks" items={data.banks.map((row) => ({ name: row.BankName, description: row.Description }))} lookup={lookup} /> : null}
+
+      {section === 'branches' ? (
+        <>
+          <Card outlined>
+            <SectionHeader title="Branch" />
+            <View style={styles.gap}>
+              <SelectField label="Bank" value={lookup.bank || null} options={data.banks.map((row) => ({ label: row.BankName, value: row.BankName }))} onChange={lookup.setBank} placeholder="Select a bank to manage its branches" />
+            </View>
+          </Card>
+          {lookup.bank ? (
+            <LookupCard title={`Branches of ${lookup.bank}`} kind="branches" items={data.branches.map((row) => ({ name: row.BranchName, description: row.Description }))} lookup={lookup} />
+          ) : null}
+        </>
       ) : null}
 
       <Modal visible={!!editor} transparent animationType="fade" onRequestClose={lookup.closeEditor}>

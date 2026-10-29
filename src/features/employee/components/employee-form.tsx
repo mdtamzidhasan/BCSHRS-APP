@@ -49,8 +49,10 @@ export function EmployeeForm({ form }: { form: EmployeeFormApi }) {
           <TextField label="Permanent Address" multiline {...input('addr_perm')} />
           <TextField label="Nominee Name" {...input('nominee_name')} />
           <TextField label="Nominee Relation" {...input('nominee_relation')} />
+          {/* LEGACY: Web Access / Web Password are commented out of EntryEmployeeBasicInfo.aspx; the server keeps the stored values on a save.
           <SwitchRow label="Web Access" value={form.webAccess} onChange={form.setWebAccess} />
           <TextField label="Web Password" {...input('pwd')} />
+          */}
         </View>
       </Card>
 

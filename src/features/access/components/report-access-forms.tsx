@@ -8,6 +8,9 @@ import { FormError } from '@/components/ui/state-views';
 import { TextField } from '@/components/ui/text-field';
 import { useFormErrors } from '@/hooks/use-form-errors';
 
+import { MonthPicker } from '@/features/payroll/components/month-picker';
+import { monthValue } from '@/features/payroll/month';
+
 import { REPORT_ACCESS_FLAGS, type Flags, type MonthlyAccess } from '../api';
 import { useMonthlyAccess, usePayrollAccess } from '../use-matrix';
 
@@ -32,7 +35,9 @@ export function PayrollAccessForm({ initial }: { initial: Flags }) {
 /** Monthly Payroll Report Access: disable reports from a month on ("Disable"), or enable all; plus the number of months shown. */
 export function MonthlyAccessForm({ initial }: { initial: MonthlyAccess }) {
   const [mode, setMode] = useState<'Disable' | 'Enable'>(initial.enableAll ? 'Enable' : 'Disable');
-  const [month, setMonth] = useState(initial.month);
+  // the server sends "YYYY-MM" (empty for "Enable all"); the picker holds the month number and the year apart
+  const [monthNo, setMonthNo] = useState<string | null>(initial.month ? String(Number(initial.month.slice(5, 7))) : null);
+  const [year, setYear] = useState<string | null>(initial.month ? initial.month.slice(0, 4) : null);
   const [count, setCount] = useState(initial.noOfMonth === null ? '' : String(initial.noOfMonth));
   const { save } = useMonthlyAccess();
   const errors = useFormErrors(save.error);
@@ -40,6 +45,8 @@ export function MonthlyAccessForm({ initial }: { initial: MonthlyAccess }) {
   return (
     <>
       <Card>
+        {/* LEGACY (MonthlyPayrollReportAccess.aspx): "Select Month" is always shown, whichever radio is picked */}
+        <MonthPicker label="Select" month={monthNo} year={year} onMonth={setMonthNo} onYear={setYear} error={errors.field('month')} />
         <RadioGroup
           label="Monthly access"
           value={mode}
@@ -49,11 +56,10 @@ export function MonthlyAccessForm({ initial }: { initial: MonthlyAccess }) {
             { label: 'Enable all', value: 'Enable' },
           ]}
         />
-        {mode === 'Disable' ? <TextField label="Month (YYYY-MM)" value={month} onChangeText={setMonth} placeholder="2024-07" keyboardType="numbers-and-punctuation" error={errors.field('month')} /> : null}
         <TextField label="No of Month" value={count} onChangeText={setCount} keyboardType="number-pad" error={errors.field('MonthNo')} />
       </Card>
       <FormError error={errors.general ? save.error : null} />
-      <Button title="Save" icon="save-outline" loading={save.isPending} onPress={() => save.mutate({ MonthlyAccess: mode, month, MonthNo: count })} />
+      <Button title="Save" icon="save-outline" loading={save.isPending} onPress={() => save.mutate({ MonthlyAccess: mode, month: monthValue(monthNo, year), MonthNo: count })} />
     </>
   );
 }

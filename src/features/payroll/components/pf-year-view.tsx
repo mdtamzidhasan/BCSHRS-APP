@@ -34,14 +34,21 @@ export function PfYearView() {
             ) : null}
           </Card>
 
-          {!current ? (
-            <Card title="Create PF Year" outlined>
-              <MonthPicker label="Start" month={state.fromMonth} year={state.fromYear} onMonth={state.setFromMonth} onYear={state.setFromYear} error={createErrors.field('DateFrom')} />
-              <MonthPicker label="End" month={state.toMonth} year={state.toYear} onMonth={state.setToMonth} onYear={state.setToYear} error={createErrors.field('DateTo')} />
-              <FormError error={createErrors.general ? state.create.error : null} />
-              <Button title="Create PF Year" icon="calendar-outline" loading={state.create.isPending} onPress={() => state.create.mutate()} />
-            </Card>
-          ) : null}
+          {/* LEGACY (PFYearUI.aspx): the Start / End Month pickers are always shown; only "Create PF Year" (no year yet) uses them */}
+          <Card title={current ? 'PF Year Period' : 'Create PF Year'} outlined>
+            <MonthPicker label="Start" month={state.fromMonth} year={state.fromYear} onMonth={state.setFromMonth} onYear={state.setFromYear} error={createErrors.field('DateFrom')} />
+            <MonthPicker label="End" month={state.toMonth} year={state.toYear} onMonth={state.setToMonth} onYear={state.setToYear} error={createErrors.field('DateTo')} />
+            {current ? (
+              <AppText variant="caption" tone="muted">
+                A PF year already exists, so these months are not used. &quot;Create Next Year&quot; keeps the current year&apos;s start and end months.
+              </AppText>
+            ) : (
+              <>
+                <FormError error={createErrors.general ? state.create.error : null} />
+                <Button title="Create PF Year" icon="calendar-outline" loading={state.create.isPending} onPress={() => state.create.mutate()} />
+              </>
+            )}
+          </Card>
 
           <ConfirmDialog
             visible={confirm}

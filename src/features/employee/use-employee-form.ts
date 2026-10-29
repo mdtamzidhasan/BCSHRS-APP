@@ -12,7 +12,7 @@ export type BankSlot = (typeof SLOTS)[number];
 
 const BASE_KEYS = [
   'code', 'ename', 'gender', 'birth_date', 'marital_status', 'religion', 'nationality', 'bangladeshi', 'father', 'mother', 'spouse', 'spouse_occup',
-  'addr', 'addr_perm', 'nominee_name', 'nominee_relation', 'pwd', 'ws_type', 'job_placement', 'desig', 'job_code', 'dept', 'location', 'ws_code',
+  'addr', 'addr_perm', 'nominee_name', 'nominee_relation', 'ws_type', 'job_placement', 'desig', 'job_code', 'dept', 'location', 'ws_code',
   'emp_cat', 'job_status', 'grade_cat', 'grade', 'grade_step', 'costcenter_code', 'costcenter', 'join_date', 'confirm_date', 'pf_date',
   'separation_date', 'currency', 'process_salary', 'finally_settled', 'sal_brkdn_compliant', 'clearance_taken', 'circle', 'zone_city', 'tin',
   'status', 'res_status', 'employer', 'tel_off', 'tel_res', 'email', 'web', 'insurance_policy', 'plan_class', 'place_birth', 'height', 'weight',
@@ -92,7 +92,8 @@ export function useEmployeeForm(initial: EmployeeRecord | undefined, onSaved: ()
   const queryClient = useQueryClient();
   const isEdit = !!initial;
   const [values, setValues] = useState<Values>(() => toValues(initial));
-  const [webAccess, setWebAccess] = useState(!!initial?.web_access);
+  // LEGACY: Web Access / Web Password are commented out of EntryEmployeeBasicInfo.aspx; neither is sent, the server keeps the stored values.
+  // const [webAccess, setWebAccess] = useState(!!initial?.web_access);
   const [chequePay, setChequePay] = useState(!!initial?.cheque_pay);
 
   const empCategories = useLookup('emp-categories', formLookups.empCategories);
@@ -158,7 +159,7 @@ export function useEmployeeForm(initial: EmployeeRecord | undefined, onSaved: ()
         body[key] = NUMBER_KEYS.includes(key) ? (text === '' ? null : Number(text)) : text === '' ? null : values[key];
       }
 
-      body.web_access = webAccess;
+      // body.web_access = webAccess;
       body.cheque_pay = chequePay;
 
       return employeeApi.save(body);
@@ -178,8 +179,8 @@ export function useEmployeeForm(initial: EmployeeRecord | undefined, onSaved: ()
     errors,
     mutation,
     lookupBusy,
-    webAccess,
-    setWebAccess,
+    // webAccess,
+    // setWebAccess,
     chequePay,
     setChequePay,
     /** Props for a TextField. */
